@@ -23,7 +23,9 @@ canvas { display: block; touch-action: none; }
 @keyframes quiet-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes number-update { from { opacity: .82; transform: translateY(2px); } to { opacity: 1; transform: none; } }
 
-.motion-hero-copy > * { animation: soft-reveal 700ms cubic-bezier(.22,1,.36,1) both; }
+/* Transform only: the headline is the LCP element and must not start invisible. */
+@keyframes rise { from { transform: translateY(14px); } to { transform: none; } }
+.motion-hero-copy > * { animation: rise 700ms cubic-bezier(.22,1,.36,1) both; }
 .motion-hero-copy > :nth-child(2) { animation-delay: 80ms; }
 .motion-hero-copy > :nth-child(3) { animation-delay: 160ms; }
 .motion-hero-copy > :nth-child(4) { animation-delay: 240ms; }
