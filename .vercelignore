@@ -1,0 +1,12 @@
+# Not used by the site: legacy Meshy models, their tooling, and local agent files.
+public/models
+scripts
+*.glb
+.claude
+.playwright-mcp
+*.tsbuildinfo
+.env*
+!.env.example
+.vercel
+node_modules
+.next
