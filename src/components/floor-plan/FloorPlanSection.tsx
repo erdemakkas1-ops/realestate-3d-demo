@@ -45,6 +45,11 @@ export default function FloorPlanSection({ apartment, floor, mode, onModeChange,
     if (fallback) onSelectApartment(fallback, next);
   };
 
+  if (rooms.length === 0) return <section id="kat-planlari" aria-labelledby="plan-title" className="mx-auto max-w-[1520px] px-5 py-24 sm:px-8 lg:px-12">
+    <h2 id="plan-title" tabIndex={-1} className="font-display text-3xl text-[#f4efe4]">Daire planı kullanılamıyor.</h2>
+    <p role="status" className="mt-4 text-sm text-[#9aa8ba]">Bu daire tipi için plan mevcut değil.</p>
+  </section>;
+
   return <section id="kat-planlari" aria-labelledby="plan-title" className="mx-auto max-w-[1520px] px-5 py-24 sm:px-8 lg:px-12 lg:py-32 xl:px-16">
     <div className="motion-in-view grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
       <div>
@@ -104,7 +109,7 @@ export default function FloorPlanSection({ apartment, floor, mode, onModeChange,
 
       <div className="relative order-1 overflow-hidden rounded-3xl border border-white/[0.07] bg-[#0d1828] lg:order-2">
         <div className="absolute right-4 top-4 z-10"><PlanToggle mode={mode} onChange={changeMode} /></div>
-        <div className="relative aspect-[10/9] w-full sm:aspect-[16/11] lg:aspect-auto lg:h-[min(72svh,680px)]">
+        <div className="relative aspect-[10/9] min-h-[360px] w-full sm:aspect-[16/11] sm:min-h-0 lg:aspect-auto lg:h-[min(72svh,680px)]">
           <div inert={display3D} aria-hidden={display3D} className={`motion-plan-layer absolute inset-x-4 bottom-10 top-20 sm:inset-x-8 sm:bottom-12 ${display3D ? "pointer-events-none opacity-0" : "opacity-100"}`}>
             <FloorPlanSvg fillContainer rooms={rooms} hoveredRoom={activeRoom} selectedRoom={selectedRoom} onSelect={selectRoom} onHover={setHoveredRoom} />
           </div>

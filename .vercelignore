@@ -1,7 +1,8 @@
-# Not used by the site: legacy Meshy models, their tooling, and local agent files.
-public/models
+# Not served by the site: the untextured source model (the site loads building-colored.glb),
+# the script that colours it, and local agent / QA files.
+public/models/building.glb
 scripts
-*.glb
+verification
 .claude
 .playwright-mcp
 *.tsbuildinfo

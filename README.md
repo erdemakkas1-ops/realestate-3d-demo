@@ -31,15 +31,14 @@ Seçili kat, daire, plan modu ve ödeme ayarları `ProjectExperience` içinde tu
 
 ## 3D sahne
 
-Bina kodla üretilir; model dosyası yüklenmez.
+Hero'da Meshy'den gelen bina modeli kullanılır.
 
-- `src/lib/buildingConfig.ts`: kat sayısı, kat yüksekliği, kule / podyum / meydan ölçüleri, cephe başına pencere aksı sayısı.
-- `src/lib/buildingLayout.ts`: kat hitbox'ları, pencere konumları ve her pencerenin hangi daireye (A batı + ön-sol, B arka, C doğu + ön-sağ) ait olduğu.
-- `Tower`: statik parçalar materyal başına tek geometride birleştirilir; pencereler instanced mesh'tir. Seçilen / üzerine gelinen daire kendi pencerelerinde yanar.
-- `Surroundings`: gökyüzü gradyanı (shader), şehir silueti, meydan ve ağaçlar.
-- `HeroCanvas`: ışıklar, prosedürel `Environment` (HDR indirmez), su yansıması (sahnenin aynalanmış kopyası), kamera kadrajı (geniş ekranda bina metnin sağına kaydırılır) ve yalnızca ilk karelerde çizilen gölge haritası.
+- `public/models/building.glb`: değiştirilmemiş, materyalsiz kaynak model (SHA-256 `95eb1193…`).
+- `public/models/building-colored.glb`: runtime'da yüklenen, aynı geometrinin cam / cephe / çerçeve / döşeme / ahşap tavan / taş / zemin / çim / ağaç / çatı PBR materyallerine ayrılmış hâli. `python scripts/colorize_building.py` (numpy gerekir) ile kaynaktan yeniden üretilir; palet ve eşikler script'in başındadır. Geometri ve sınırlar aynı olduğu için kat kalibrasyonu değişmez.
+- `src/lib/glbBuildingConfig.ts` + `buildingFloors.ts`: modelin sınır kutusuna göre 14 kat hitbox'ı.
+- `BuildingScene` → `BuildingCanvas` (gün ışığı, prosedürel gökyüzü yansıması, CSS gökyüzü gradyanı, ilk karelerde çizilen gölge) → `BuildingModel` (kamera kadrajı, OrbitControls; tekerlek sayfayı kaydırır, zoom yapmaz).
 
-`public/models/` altındaki Meshy GLB'leri ve `scripts/colorize_building.py` artık kullanılmıyor.
+`Tower`, `Surroundings`, `buildingLayout.ts` ve `HeroCanvas` (yalnızca yeniden dışa aktarım) önceki kodla kurulmuş kuleye aittir.
 
 ## İçerik
 

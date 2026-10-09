@@ -15,13 +15,24 @@ export type AppointmentContext = {
 
 export default function AppointmentDialog({ open, context, onClose }: { open: boolean; context: AppointmentContext | null; onClose: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
+  const historyEntry = useRef(false);
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     const node = dialog.current;
     if (!node) return;
-    if (open && !node.open) node.showModal();
+    if (open && !node.open) {
+      window.history.pushState(window.history.state, "", window.location.href);
+      historyEntry.current = true;
+      node.showModal();
+    }
     if (!open && node.open) node.close();
+    const handleBack = () => {
+      historyEntry.current = false;
+      if (node.open) node.close();
+    };
+    if (open) window.addEventListener("popstate", handleBack);
+    return () => window.removeEventListener("popstate", handleBack);
   }, [open]);
 
   const fieldClass = "mt-2 w-full rounded-xl border border-white/10 bg-[#070c16]/70 px-4 py-3 text-base text-[#f1ebdf] outline-none transition-colors placeholder:text-[#5f6b7d] focus:border-[#d8b879]/70";
@@ -29,7 +40,14 @@ export default function AppointmentDialog({ open, context, onClose }: { open: bo
   return <dialog
     ref={dialog}
     aria-labelledby="appointment-title"
-    onClose={() => { setSubmitted(false); onClose(); }}
+    onClose={() => {
+      if (historyEntry.current) {
+        historyEntry.current = false;
+        window.history.back();
+      }
+      setSubmitted(false);
+      onClose();
+    }}
     onClick={event => { if (event.target === dialog.current) dialog.current?.close(); }}
     className="m-auto w-[min(32rem,calc(100vw-2rem))] max-h-[calc(100svh-2rem)] overflow-y-auto rounded-3xl border border-white/10 bg-[#0c1422] p-0 text-[#e9e4da] shadow-[0_30px_90px_rgba(0,0,0,0.5)]"
   >

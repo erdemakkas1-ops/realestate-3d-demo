@@ -1,16 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import dynamic from "next/dynamic";
 import type { Apartment } from "@/types/apartment";
 import { countAvailable, getApartmentsForFloor } from "@/data/apartments";
 import { project, projectStats } from "@/data/project";
 import { FLOOR_COUNT } from "@/lib/buildingConfig";
 import { formatMillionsTRY } from "@/lib/paymentUtils";
 import type { UnitHighlight } from "./three/Tower";
-import ViewerStatus from "./three/ViewerStatus";
-
-const HeroCanvas = dynamic(() => import("./three/HeroCanvas"), { ssr: false, loading: () => <ViewerStatus /> });
+import BuildingScene from "./three/BuildingScene";
 
 type Props = {
   selectedFloor: number | null;
@@ -52,7 +49,7 @@ export default function HeroSection({ selectedFloor, selectedApartment, onSelect
 
   return <section id="proje" aria-labelledby="hero-title" className="relative flex flex-col bg-[#0b1220] pt-[108px] lg:block lg:h-svh lg:min-h-[680px] lg:pt-0">
     <div role="img" aria-label="Projenin 3D modeli. Döndürmek için sürükleyin, bir kata tıklayarak dairelerini görün; kat seçici klavyeyle de kullanılabilir." className="motion-canvas scrollable-canvas relative order-2 h-[58svh] min-h-[340px] lg:absolute lg:inset-0 lg:h-auto">
-      <HeroCanvas hoveredFloor={hoveredFloor} selectedFloor={selectedFloor} highlight={highlight} onHoverChange={setHoveredFloor} onSelect={onSelectFloor} />
+      <BuildingScene hoveredFloor={hoveredFloor} selectedFloor={selectedFloor} highlight={highlight} onHoverChange={setHoveredFloor} onSelect={onSelectFloor} />
       <p className="pointer-events-none absolute bottom-6 right-8 hidden items-center gap-2 text-xs text-[#9aa8ba] lg:flex">
         <span aria-hidden="true" className="flex h-6 w-4 justify-center rounded-full border border-current pt-1"><span className="h-1.5 w-0.5 rounded bg-current" /></span>
         Katların üzerine gelin, birine tıklayın
