@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 import { useThree } from "@react-three/fiber";
 import type { Mesh, MeshStandardMaterial } from "three";
 import type { BuildingFloor } from "@/lib/buildingLayout";
-import { HIGHLIGHT_HEIGHT_RATIO, HIGHLIGHT_PADDING } from "@/lib/glbBuildingConfig";
+import { HIGHLIGHT_HEIGHT_RATIO, HIGHLIGHT_PADDING } from "@/lib/buildingConfig";
 
 // Decorative meshes must never intercept a hitbox's pointer events.
 const ignoreRaycast = () => {};

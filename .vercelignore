@@ -1,6 +1,6 @@
-# Not served by the site: the untextured source model (the site loads building-colored.glb),
-# the script that colours it, and local agent / QA files.
-public/models/building.glb
+# Not used by the site (the building is built in code): the Meshy models and the script that
+# colours them, plus local agent / QA files.
+public/models
 scripts
 verification
 .claude

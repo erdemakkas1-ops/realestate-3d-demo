@@ -31,15 +31,15 @@ Seçili kat, daire, plan modu ve ödeme ayarları `ProjectExperience` içinde tu
 
 ## 3D sahne
 
-Hero'da Meshy'den gelen bina modeli kullanılır.
+Bina, `Ön Cephe at Dusk` referans render'ına göre kodla kurulur; model dosyası yüklenmez.
 
-- `public/models/building.glb`: değiştirilmemiş, materyalsiz kaynak model (SHA-256 `95eb1193…`).
-- `public/models/building-colored.glb`: runtime'da yüklenen, aynı geometrinin cam / cephe / çerçeve / döşeme / ahşap tavan / taş / zemin / çim / ağaç / çatı PBR materyallerine ayrılmış hâli. `python scripts/colorize_building.py [dusk|day]` (numpy gerekir) ile kaynaktan yeniden üretilir: `dusk` (varsayılan) referans akşam render'ı, `day` 5 Ekim gün ışığı paleti. Palet ve eşikler script'in başındadır. Geometri ve sınırlar aynı olduğu için kat kalibrasyonu değişmez.
-- `src/lib/glbBuildingConfig.ts` + `buildingFloors.ts`: modelin sınır kutusuna göre 14 kat hitbox'ı.
-- `src/lib/windowPanes.ts`: cam malzemesine kat kalibrasyonuna hizalı prosedürel pencere ızgarası (doğrama çizgileri, oda başına değişen iç ışık).
-- `BuildingScene` → `BuildingCanvas` (akşam gökyüzü gradyanı + SVG şehir silueti, nötr ön ışık, turuncu kontur ışığı, HDR indirmeyen akşam kubbesi yansıması, ilk karelerde çizilen gölge) → `BuildingModel` (kamera kadrajı, OrbitControls; tekerlek sayfayı kaydırır, zoom yapmaz).
+- `src/lib/buildingConfig.ts`: kat sayısı ve yüksekliği, kule / balkon / podyum / sokak ölçüleri.
+- `src/lib/buildingLayout.ts`: ön cephe aksları (balkonlu kanat, ahşap kolon, dar pencere, antrasit kanat, ışık şeritli orta bölüm), kat hitbox'ları ve her pencerenin hangi daireye ait olduğu (A batı kanadı, B orta + arka, C doğu kanadı).
+- `Tower`: statik parçalar materyal başına tek geometride birleşir (antrasit, ahşap, taş, cam korkuluk, ışık şeritleri, bitkiler); pencereler instanced'dır ve oda derinliği shader'ı (aydınlık tavan, mobilya bandı) taşır. Seçilen / üzerine gelinen dairenin pencereleri altın rengi yanar.
+- `Surroundings`: kaldırım, çitler, ağaçlar ve palmiyeler, şeritli yol, ışıkları yanan arabalar, sokak lambaları.
+- `HeroCanvas`: akşam gökyüzü (CSS) ve SVG şehir silueti, akşam ışığı, prosedürel akşam kubbesi yansıması, kamera kadrajı (tekerlek sayfayı kaydırır, zoom yok), 2× piksel yoğunluğuna kadar render.
 
-`Tower`, `Surroundings`, `buildingLayout.ts` ve `HeroCanvas` (yalnızca yeniden dışa aktarım) önceki kodla kurulmuş kuleye aittir.
+`public/models/` (Meshy modeli ve renkli kopyası) ve `scripts/colorize_building.py` önceki GLB tabanlı görünüme aittir; deploy'a girmez.
 
 ## İçerik
 
