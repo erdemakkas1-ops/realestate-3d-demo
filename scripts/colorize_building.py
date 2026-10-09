@@ -24,20 +24,19 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "public/models/building.glb"
 TARGET = ROOT / "public/models/building-colored.glb"
 
-# name: (sRGB base colour, roughness, metalness) — a bright, saturated daylight palette.
+# name: (sRGB base colour, roughness, metalness)
 MATERIALS = {
-    "facade": ("#f1e7d3", 0.78, 0.0),    # warm ivory render
-    "frame": ("#f7f3ea", 0.6, 0.0),      # off-white fins and slab edges
-    "glass": ("#2b5378", 0.05, 0.75),     # tinted, highly reflective glazing; colour comes from the sky
-    "slab": ("#e9e1d1", 0.82, 0.0),      # balcony floors
-    "soffit": ("#c08a58", 0.7, 0.0),     # warm timber balcony ceilings
-    "stone": ("#d7b183", 0.72, 0.0),     # sandstone podium cladding
-    "paving": ("#cfc6b6", 0.88, 0.0),    # light limestone plaza
-    "grass": ("#6fae4a", 1.0, 0.0),      # lawn and planters
-    "foliage": ("#4f9a3a", 0.92, 0.0),   # tree crowns, light
-    "foliage_dark": ("#2f7a35", 0.92, 0.0),  # tree crowns, shade side
-    "roof": ("#39404a", 0.45, 0.35),     # anthracite plant room
-    "deck": ("#b8794a", 0.72, 0.0),      # teak roof terrace
+    "facade": ("#e6e0d4", 0.82, 0.0),
+    "frame": ("#f4f2ec", 0.7, 0.0),
+    "glass": ("#5d7386", 0.1, 0.55),
+    "slab": ("#d6cfc1", 0.85, 0.0),
+    "soffit": ("#dcd4c6", 0.9, 0.0),
+    "stone": ("#c4b49b", 0.78, 0.0),
+    "paving": ("#b3ada2", 0.9, 0.0),
+    "grass": ("#5e7a42", 1.0, 0.0),
+    "foliage": ("#4c6a37", 0.95, 0.0),
+    "roof": ("#4a4d52", 0.5, 0.3),
+    "deck": ("#a27e5c", 0.8, 0.0),
 }
 NAMES = list(MATERIALS)
 ID = {name: i for i, name in enumerate(NAMES)}
@@ -141,10 +140,7 @@ def classify(positions, indices):
     alignment = axis_alignment(centers, normals, areas / 2, lo)
     tower_core = in_tower & (H > 0.25) & (H < 0.885)
     crown_core = (X > -0.24) & (X < 0.32) & (np.abs(Z) < 0.31) & crown
-    foliage = (alignment < 0.42) & ~tower_core & ~crown_core
-    mat[foliage] = ID["foliage"]
-    # Two greens: downward- and north-facing leaves read darker, like a real canopy.
-    mat[foliage & ((normals[:, 1] < -0.1) | (normals[:, 2] < -0.35))] = ID["foliage_dark"]
+    mat[(alignment < 0.42) & ~tower_core & ~crown_core] = ID["foliage"]
     return mat, areas
 
 

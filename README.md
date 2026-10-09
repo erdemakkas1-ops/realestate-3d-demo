@@ -36,7 +36,7 @@ Hero'da Meshy'den gelen bina modeli kullanılır.
 - `public/models/building.glb`: değiştirilmemiş, materyalsiz kaynak model (SHA-256 `95eb1193…`).
 - `public/models/building-colored.glb`: runtime'da yüklenen, aynı geometrinin cam / cephe / çerçeve / döşeme / ahşap tavan / taş / zemin / çim / ağaç / çatı PBR materyallerine ayrılmış hâli. `python scripts/colorize_building.py` (numpy gerekir) ile kaynaktan yeniden üretilir; palet ve eşikler script'in başındadır. Geometri ve sınırlar aynı olduğu için kat kalibrasyonu değişmez.
 - `src/lib/glbBuildingConfig.ts` + `buildingFloors.ts`: modelin sınır kutusuna göre 14 kat hitbox'ı.
-- `BuildingScene` → `BuildingCanvas` (gün ışığı, prosedürel gökyüzü yansıması, CSS gökyüzü gradyanı, ilk karelerde çizilen gölge) → `BuildingModel` (kamera kadrajı, OrbitControls; tekerlek sayfayı kaydırır, zoom yapmaz).
+- `BuildingScene` → `BuildingCanvas` (sıcak güneş, serin dolgu, HDR indirmeyen prosedürel cam yansıması, ilk karelerde çizilen gölge) → `BuildingModel` (kamera kadrajı, OrbitControls; tekerlek sayfayı kaydırır, zoom yapmaz).
 
 `Tower`, `Surroundings`, `buildingLayout.ts` ve `HeroCanvas` (yalnızca yeniden dışa aktarım) önceki kodla kurulmuş kuleye aittir.
 
