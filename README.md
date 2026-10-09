@@ -34,9 +34,10 @@ Seçili kat, daire, plan modu ve ödeme ayarları `ProjectExperience` içinde tu
 Hero'da Meshy'den gelen bina modeli kullanılır.
 
 - `public/models/building.glb`: değiştirilmemiş, materyalsiz kaynak model (SHA-256 `95eb1193…`).
-- `public/models/building-colored.glb`: runtime'da yüklenen, aynı geometrinin cam / cephe / çerçeve / döşeme / ahşap tavan / taş / zemin / çim / ağaç / çatı PBR materyallerine ayrılmış hâli. `python scripts/colorize_building.py` (numpy gerekir) ile kaynaktan yeniden üretilir; palet ve eşikler script'in başındadır. Geometri ve sınırlar aynı olduğu için kat kalibrasyonu değişmez.
+- `public/models/building-colored.glb`: runtime'da yüklenen, aynı geometrinin cam / cephe / çerçeve / döşeme / ahşap tavan / taş / zemin / çim / ağaç / çatı PBR materyallerine ayrılmış hâli. `python scripts/colorize_building.py [dusk|day]` (numpy gerekir) ile kaynaktan yeniden üretilir: `dusk` (varsayılan) referans akşam render'ı, `day` 5 Ekim gün ışığı paleti. Palet ve eşikler script'in başındadır. Geometri ve sınırlar aynı olduğu için kat kalibrasyonu değişmez.
 - `src/lib/glbBuildingConfig.ts` + `buildingFloors.ts`: modelin sınır kutusuna göre 14 kat hitbox'ı.
-- `BuildingScene` → `BuildingCanvas` (sıcak güneş, serin dolgu, HDR indirmeyen prosedürel cam yansıması, ilk karelerde çizilen gölge) → `BuildingModel` (kamera kadrajı, OrbitControls; tekerlek sayfayı kaydırır, zoom yapmaz).
+- `src/lib/windowPanes.ts`: cam malzemesine kat kalibrasyonuna hizalı prosedürel pencere ızgarası (doğrama çizgileri, oda başına değişen iç ışık).
+- `BuildingScene` → `BuildingCanvas` (akşam gökyüzü gradyanı + SVG şehir silueti, nötr ön ışık, turuncu kontur ışığı, HDR indirmeyen akşam kubbesi yansıması, ilk karelerde çizilen gölge) → `BuildingModel` (kamera kadrajı, OrbitControls; tekerlek sayfayı kaydırır, zoom yapmaz).
 
 `Tower`, `Surroundings`, `buildingLayout.ts` ve `HeroCanvas` (yalnızca yeniden dışa aktarım) önceki kodla kurulmuş kuleye aittir.
 

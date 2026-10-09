@@ -3,9 +3,10 @@
 import { memo, useLayoutEffect, useMemo, useRef, type ComponentRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
-import { Box3, MathUtils, PerspectiveCamera, Sphere, Vector3, type Mesh } from "three";
+import { Box3, MathUtils, PerspectiveCamera, Sphere, Vector3, type Material, type Mesh } from "three";
 import FloorHitboxes, { type FloorInteractionProps } from "./FloorHitboxes";
-import { TOWER_WIDTH_RATIO, TOWER_DEPTH_RATIO } from "@/lib/glbBuildingConfig";
+import { FLOOR_COUNT, FLOOR_END_RATIO, FLOOR_START_RATIO, TOWER_WIDTH_RATIO, TOWER_DEPTH_RATIO } from "@/lib/glbBuildingConfig";
+import { applyWindowPanes } from "@/lib/windowPanes";
 import { createBuildingFloors } from "@/lib/buildingFloors";
 import { countAvailable } from "@/data/apartments";
 import { useTouchOrbit } from "@/lib/useTouchOrbit";
@@ -41,6 +42,19 @@ export default memo(function BuildingModel(interaction: FloorInteractionProps) {
     return { center: sphere.center, radius: sphere.radius, worldBounds };
   }, [scene]);
   const floors = useMemo(() => createBuildingFloors(worldBounds), [worldBounds]);
+
+  // Lit window grid on the glass, aligned to the same floor calibration as the hitboxes (model space).
+  // Patched at commit, before R3F draws the first frame.
+  useLayoutEffect(() => {
+    const height = worldBounds.max.y - worldBounds.min.y;
+    const floorHeight = height * (FLOOR_END_RATIO - FLOOR_START_RATIO) / FLOOR_COUNT;
+    const grid = { floorStartY: worldBounds.min.y + center.y + height * FLOOR_START_RATIO, floorHeight, paneWidth: floorHeight * 0.62 };
+    scene.traverse(object => {
+      const material = (object as Mesh).material as Material | undefined;
+      if ((object as Mesh).isMesh && material?.name === "glass") applyWindowPanes(material, grid);
+    });
+    invalidate();
+  }, [scene, worldBounds, center, invalidate]);
 
   // Frame the tower, not the landscape contained in the same GLB mesh.
   const verticalFov = MathUtils.degToRad(camera instanceof PerspectiveCamera ? camera.fov : 40);

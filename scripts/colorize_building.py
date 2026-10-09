@@ -7,7 +7,7 @@ public/models/building-colored.glb. The vertex buffer is reused unchanged; only 
 buffer is partitioned into one primitive per material, so the file size stays the same and
 the floor hitbox ratios in src/lib/buildingConfig.ts remain valid.
 
-Usage (requires numpy):  python scripts/colorize_building.py
+Usage (requires numpy):  python scripts/colorize_building.py [dusk|day]   (default: dusk)
 
 The thresholds below are tuned to this specific model and are expressed in its own
 coordinates (Y up; H = height ratio from the bottom of the bounding box).
@@ -15,6 +15,7 @@ coordinates (Y up; H = height ratio from the bottom of the bounding box).
 
 import json
 import struct
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -24,20 +25,40 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "public/models/building.glb"
 TARGET = ROOT / "public/models/building-colored.glb"
 
-# name: (sRGB base colour, roughness, metalness)
-MATERIALS = {
-    "facade": ("#e6e0d4", 0.82, 0.0),
-    "frame": ("#f4f2ec", 0.7, 0.0),
-    "glass": ("#5d7386", 0.1, 0.55),
-    "slab": ("#d6cfc1", 0.85, 0.0),
-    "soffit": ("#dcd4c6", 0.9, 0.0),
-    "stone": ("#c4b49b", 0.78, 0.0),
-    "paving": ("#b3ada2", 0.9, 0.0),
-    "grass": ("#5e7a42", 1.0, 0.0),
-    "foliage": ("#4c6a37", 0.95, 0.0),
-    "roof": ("#4a4d52", 0.5, 0.3),
-    "deck": ("#a27e5c", 0.8, 0.0),
+# name: (sRGB base colour, roughness, metalness[, emissive sRGB, emissive strength])
+PALETTES = {
+    # Dusk render: lit interiors behind every pane, warm downlights under the balconies,
+    # taupe stone frame. Matches the "Ön Cephe at Dusk" reference the model came from.
+    "dusk": {
+        "facade": ("#c2ab88", 0.8, 0.0),
+        "frame": ("#dccaa8", 0.7, 0.0),
+        "glass": ("#151b24", 0.14, 0.5, "#ffb45e", 1.05),  # emission is masked into lit panes at runtime (src/lib/windowPanes.ts)
+        "slab": ("#d9cdb8", 0.82, 0.0),
+        "soffit": ("#b48d64", 0.75, 0.0, "#ffad55", 0.3),
+        "stone": ("#a38a6c", 0.75, 0.0),
+        "paving": ("#3b3d42", 0.9, 0.0),
+        "grass": ("#2c4428", 1.0, 0.0),
+        "foliage": ("#253d27", 0.95, 0.0),
+        "roof": ("#2a2d33", 0.5, 0.3),
+        "deck": ("#7d5b3f", 0.75, 0.0, "#ffad55", 0.15),
+    },
+    # Daylight: the first colouring (2026-10-05).
+    "day": {
+        "facade": ("#e6e0d4", 0.82, 0.0),
+        "frame": ("#f4f2ec", 0.7, 0.0),
+        "glass": ("#5d7386", 0.1, 0.55),
+        "slab": ("#d6cfc1", 0.85, 0.0),
+        "soffit": ("#dcd4c6", 0.9, 0.0),
+        "stone": ("#c4b49b", 0.78, 0.0),
+        "paving": ("#b3ada2", 0.9, 0.0),
+        "grass": ("#5e7a42", 1.0, 0.0),
+        "foliage": ("#4c6a37", 0.95, 0.0),
+        "roof": ("#4a4d52", 0.5, 0.3),
+        "deck": ("#a27e5c", 0.8, 0.0),
+    },
 }
+PALETTE = sys.argv[1] if len(sys.argv) > 1 else "dusk"
+MATERIALS = PALETTES[PALETTE]
 NAMES = list(MATERIALS)
 ID = {name: i for i, name in enumerate(NAMES)}
 
@@ -162,16 +183,21 @@ def write_glb(path, positions, indices, mat):
         accessors.append({"bufferView": 1, "byteOffset": len(index_bytes), "componentType": 5125,
                           "count": faces.size, "type": "SCALAR"})
         index_bytes += faces.astype(np.uint32).tobytes()
-        colour, roughness, metalness = MATERIALS[name]
+        colour, roughness, metalness, *glow = MATERIALS[name]
         # Double-sided: the Meshy surface has inconsistent winding, which otherwise leaves holes.
-        materials.append({"name": name, "doubleSided": True, "pbrMetallicRoughness": {
-            "baseColorFactor": srgb_to_linear(colour), "roughnessFactor": roughness, "metallicFactor": metalness}})
+        material = {"name": name, "doubleSided": True, "pbrMetallicRoughness": {
+            "baseColorFactor": srgb_to_linear(colour), "roughnessFactor": roughness, "metallicFactor": metalness}}
+        if glow:
+            material["emissiveFactor"] = srgb_to_linear(glow[0])[:3]
+            material["extensions"] = {"KHR_materials_emissive_strength": {"emissiveStrength": glow[1]}}
+        materials.append(material)
         primitives.append({"attributes": {"POSITION": 0}, "indices": len(accessors) - 1, "material": len(materials) - 1})
 
     binary = position_bytes + index_bytes
     binary += b"\0" * (-len(binary) % 4)
     gltf = {
         "asset": {"version": "2.0", "generator": "scripts/colorize_building.py"},
+        **({"extensionsUsed": ["KHR_materials_emissive_strength"]} if any(len(v) > 3 for v in MATERIALS.values()) else {}),
         "scene": 0, "scenes": [{"nodes": [0]}],
         "nodes": [{"mesh": 0, "name": "building"}],
         "meshes": [{"name": "building", "primitives": primitives}],
