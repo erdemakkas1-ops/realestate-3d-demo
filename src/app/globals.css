@@ -12,9 +12,12 @@ html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
 html, body { margin: 0; width: 100%; overflow-x: clip; }
 body { background: #070c16; color: #e9e4da; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 canvas { display: block; touch-action: none; }
-@media (max-width: 1023px) {
-  /* One finger scrolls the page over the 3D views; two fingers orbit. */
-  .scrollable-canvas canvas { touch-action: pan-y !important; }
+@media (pointer: coarse) {
+  /* Touch: vertical swipes scroll the page, horizontal swipes turn the 3D view.
+     OrbitControls writes touch-action: none on R3F's event wrapper div, not on the canvas,
+     and the browser applies the strictest value up the chain — so override both. */
+  .scrollable-canvas canvas,
+  .scrollable-canvas div { touch-action: pan-y !important; }
 }
 [data-room-shape]:focus-visible > path { stroke: #b7862f; stroke-width: 6; }
 [data-poi-marker]:focus-visible > circle:first-child { stroke: #f0d7a4; stroke-width: 2; }

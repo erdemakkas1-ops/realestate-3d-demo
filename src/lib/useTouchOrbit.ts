@@ -4,27 +4,32 @@ import { useEffect, type RefObject } from "react";
 import { TOUCH } from "three";
 import type { OrbitControls } from "three-stdlib";
 
+/**
+ * Touch devices: one finger rotates (the browser keeps vertical swipes for page scroll via
+ * touch-action: pan-y in globals.css, so only horizontal drags reach the controls), two fingers
+ * rotate or zoom where zoom is enabled.
+ */
 export function useTouchOrbit(ref: RefObject<OrbitControls | null>) {
   useEffect(() => {
     const controls = ref.current;
     if (!controls?.domElement) return;
-    const canvas = controls.domElement;
-    const smallScreen = window.matchMedia("(max-width: 1023px)");
+    const target = controls.domElement;
+    const touch = window.matchMedia("(pointer: coarse)");
     const original = { ...controls.touches };
     const configure = () => {
-      // Pan is disabled in both viewers: one finger is reserved for page scroll.
-      controls.touches.ONE = smallScreen.matches ? TOUCH.PAN : original.ONE;
-      controls.touches.TWO = smallScreen.matches ? TOUCH.DOLLY_ROTATE : original.TWO;
+      controls.touches.ONE = touch.matches ? TOUCH.ROTATE : original.ONE;
+      controls.touches.TWO = touch.matches ? TOUCH.DOLLY_ROTATE : original.TWO;
     };
+    // Keep a two-finger gesture on the model instead of letting it pinch-zoom the page.
     const keepTwoFingerGesture = (event: TouchEvent) => {
-      if (smallScreen.matches && event.touches.length === 2 && event.cancelable) event.preventDefault();
+      if (touch.matches && event.touches.length === 2 && event.cancelable) event.preventDefault();
     };
     configure();
-    smallScreen.addEventListener("change", configure);
-    canvas.addEventListener("touchmove", keepTwoFingerGesture, { passive: false });
+    touch.addEventListener("change", configure);
+    target.addEventListener("touchmove", keepTwoFingerGesture, { passive: false });
     return () => {
-      smallScreen.removeEventListener("change", configure);
-      canvas.removeEventListener("touchmove", keepTwoFingerGesture);
+      touch.removeEventListener("change", configure);
+      target.removeEventListener("touchmove", keepTwoFingerGesture);
       Object.assign(controls.touches, original);
     };
   }, [ref]);
